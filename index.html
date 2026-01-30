@@ -85,24 +85,44 @@
             animation: movePacket 1.5s ease-in-out forwards;
         }
         
-        /* Brain pulse animation */
+        /* Brain pulse animation - slow, smooth, gentle pulsing */
         @keyframes brainPulse {
-            0%, 100% { 
-                filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
-                transform: scale(1);
+            0% { 
+                filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.2));
             }
             50% { 
-                filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.6));
-                transform: scale(1.02);
+                filter: drop-shadow(0 0 35px rgba(139, 92, 246, 0.5));
+            }
+            100% { 
+                filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.2));
+            }
+        }
+        
+        @keyframes brainRingPulse {
+            0% { 
+                r: 70;
+                opacity: 0.2;
+            }
+            50% { 
+                r: 80;
+                opacity: 0.4;
+            }
+            100% { 
+                r: 70;
+                opacity: 0.2;
             }
         }
         
         .brain-container {
-            animation: brainPulse 2s ease-in-out infinite;
+            animation: brainPulse 4s ease-in-out infinite;
+        }
+        
+        .brain-pulse-ring {
+            animation: brainRingPulse 4s ease-in-out infinite;
         }
         
         .brain-container.processing {
-            animation: brainPulse 0.5s ease-in-out infinite;
+            animation: brainPulse 3s ease-in-out infinite;
         }
         
         /* Step indicator styles */
@@ -290,7 +310,7 @@
                     </div>
                     
                     <!-- Main SVG Animation Canvas -->
-                    <svg viewBox="0 0 700 560" class="w-full max-w-xl mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg" style="overflow: visible;">
+                    <svg viewBox="0 0 700 500" class="w-full max-w-lg mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg" style="overflow: visible;">
                         <defs>
                             <!-- Gradients -->
                             <radialGradient id="brainGlow" cx="50%" cy="50%" r="50%">
@@ -374,29 +394,49 @@
                         
                         <!-- ========== CENTRAL MAGICFLOW BRAIN ========== -->
                         <g id="brain-node" class="brain-container">
-                            <!-- Outer pulse ring -->
-                            <circle id="brain-pulse-ring" cx="350" cy="280" r="75" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.3"/>
-                            <!-- Main circle -->
-                            <circle cx="350" cy="280" r="60" fill="white" stroke="#8b5cf6" stroke-width="4"/>
+                            <!-- Outer pulse ring - animated -->
+                            <circle class="brain-pulse-ring" cx="350" cy="280" r="75" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.3"/>
+                            <!-- Second pulse ring for layered effect -->
+                            <circle class="brain-pulse-ring" cx="350" cy="280" r="68" fill="none" stroke="#a78bfa" stroke-width="1" opacity="0.2" style="animation-delay: -2s;"/>
+                            <!-- Main circle background -->
+                            <circle cx="350" cy="280" r="55" fill="white" stroke="#8b5cf6" stroke-width="3"/>
                             <circle cx="350" cy="280" r="48" fill="#f5f3ff"/>
-                            <!-- Brain illustration centered at (350, 280) -->
-                            <g transform="translate(325, 250)">
-                                <path d="M25 10 
-                                         c-6-10-20-12-28-4 c-6 6-6 16 0 22 
-                                         c-10-2-18 6-18 16 c0 8 6 14 14 16
-                                         c-2 6 4 14 12 14 c6 0 11-4 13-10
-                                         c2 6 6 10 13 10 c8 0 14-8 12-14
-                                         c8-2 14-8 14-16 c0-10-8-18-18-16
-                                         c6-6 6-16 0-22 c-8-8-22-6-28 4z" 
+                            <!-- Brain icon - proper brain with two hemispheres -->
+                            <g transform="translate(350, 280)">
+                                <!-- Left hemisphere -->
+                                <path d="M-5 -25 
+                                         C-20 -25 -28 -15 -28 -5
+                                         C-28 0 -26 5 -22 8
+                                         C-28 12 -30 20 -26 28
+                                         C-22 36 -12 38 -5 35
+                                         C-5 35 -5 -25 -5 -25Z" 
                                       fill="#c4b5fd" stroke="#8b5cf6" stroke-width="1.5"/>
-                                <!-- Neural connections -->
-                                <path d="M17 22 q4 6 16 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
-                                <path d="M14 34 q6 4 22 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
-                                <path d="M17 46 q4 4 16 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                                <!-- Right hemisphere -->
+                                <path d="M5 -25 
+                                         C20 -25 28 -15 28 -5
+                                         C28 0 26 5 22 8
+                                         C28 12 30 20 26 28
+                                         C22 36 12 38 5 35
+                                         C5 35 5 -25 5 -25Z" 
+                                      fill="#c4b5fd" stroke="#8b5cf6" stroke-width="1.5"/>
+                                <!-- Center division (corpus callosum) -->
+                                <path d="M0 -20 L0 30" stroke="#8b5cf6" stroke-width="2"/>
+                                <!-- Brain folds - left side -->
+                                <path d="M-10 -15 Q-18 -12 -22 -5" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <path d="M-8 -5 Q-16 -2 -24 5" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <path d="M-8 8 Q-16 12 -22 20" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <path d="M-8 20 Q-14 24 -18 30" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <!-- Brain folds - right side -->
+                                <path d="M10 -15 Q18 -12 22 -5" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <path d="M8 -5 Q16 -2 24 5" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <path d="M8 8 Q16 12 22 20" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <path d="M8 20 Q14 24 18 30" stroke="#8b5cf6" stroke-width="1.2" fill="none"/>
+                                <!-- Brain stem -->
+                                <path d="M-4 32 Q0 40 4 32" fill="#c4b5fd" stroke="#8b5cf6" stroke-width="1.2"/>
                             </g>
                             <!-- Label -->
-                            <text x="350" y="355" text-anchor="middle" style="font-size: 12px; font-weight: 700; fill: #6d28d9;">MagicFlow</text>
-                            <text x="350" y="368" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Orchestration Brain</text>
+                            <text x="350" y="355" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #6d28d9;">MagicFlow</text>
+                            <text x="350" y="370" text-anchor="middle" style="font-size: 10px; fill: #7c3aed;">Orchestration Brain</text>
                         </g>
                         
                         <!-- ========== WORKFLOW NODES ========== -->
