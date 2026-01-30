@@ -85,40 +85,38 @@
             animation: movePacket 1.5s ease-in-out forwards;
         }
         
-        /* Brain pulse animation - slow, smooth, gentle pulsing */
+        /* Brain pulse animation - optimized for performance */
         @keyframes brainPulse {
-            0% { 
-                filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.2));
+            0%, 100% { 
+                opacity: 0.9;
+                transform: scale(1);
             }
             50% { 
-                filter: drop-shadow(0 0 35px rgba(139, 92, 246, 0.5));
-            }
-            100% { 
-                filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.2));
+                opacity: 1;
+                transform: scale(1.02);
             }
         }
         
         @keyframes brainRingPulse {
-            0% { 
-                r: 70;
+            0%, 100% { 
                 opacity: 0.2;
+                transform: scale(1);
             }
             50% { 
-                r: 80;
                 opacity: 0.4;
-            }
-            100% { 
-                r: 70;
-                opacity: 0.2;
+                transform: scale(1.05);
             }
         }
         
         .brain-container {
             animation: brainPulse 4s ease-in-out infinite;
+            will-change: transform, opacity;
         }
         
         .brain-pulse-ring {
             animation: brainRingPulse 4s ease-in-out infinite;
+            transform-origin: center;
+            will-change: transform, opacity;
         }
         
         .brain-container.processing {
@@ -152,14 +150,15 @@
             animation: drawLine 0.8s ease-out forwards;
         }
         
-        /* Glow effect for active elements */
+        /* Glow effect for active elements - optimized */
         @keyframes glowPulse {
-            0%, 100% { filter: drop-shadow(0 0 8px currentColor); }
-            50% { filter: drop-shadow(0 0 20px currentColor); }
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
         }
         
         .glow-active {
             animation: glowPulse 1s ease-in-out infinite;
+            will-change: transform, opacity;
         }
         
         /* Status badge animations */
@@ -468,37 +467,14 @@
                         <g id="node-phone" class="workflow-node" data-node="phone">
                             <circle cx="150" cy="430" r="42" fill="white" stroke="#14b8a6" stroke-width="2"/>
                             <circle cx="150" cy="430" r="32" fill="#ccfbf1"/>
-                            <!-- Phone icon - clean handset design -->
+                            <!-- Phone icon - simple classic handset -->
                             <g transform="translate(150, 430)">
-                                <!-- Phone receiver -->
-                                <path d="M-12 -8 
-                                         C-14 -8 -15 -6 -15 -4 
-                                         L-15 0 
-                                         C-15 2 -13 4 -11 4 
-                                         L-9 4 
-                                         C-7 4 -6 3 -5 1 
-                                         L-3 -4 
-                                         C-2 -6 -1 -7 1 -7 
-                                         L3 -7 
-                                         C5 -7 6 -6 7 -4 
-                                         L9 1 
-                                         C10 3 11 4 13 4 
-                                         L15 4 
-                                         C17 4 19 2 19 0 
-                                         L19 -4 
-                                         C19 -6 18 -8 16 -8 
-                                         L12 -8 
-                                         C10 -8 8 -6 7 -3 
-                                         L5 2 
-                                         C4 4 3 5 1 5 
-                                         L-1 5 
-                                         C-3 5 -4 4 -5 2 
-                                         L-7 -3 
-                                         C-8 -6 -10 -8 -12 -8 Z" 
-                                      fill="#0d9488" stroke="#0f766e" stroke-width="0.5"/>
-                                <!-- Phone wave signals -->
-                                <path d="M5 -12 Q8 -14 5 -16" stroke="#14b8a6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                                <path d="M8 -10 Q13 -14 8 -18" stroke="#14b8a6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                                <path d="M-10 -6 L-10 -2 C-10 0 -8 2 -6 2 L-4 2 L-2 -6 L2 -6 L4 2 L6 2 C8 2 10 0 10 -2 L10 -6 C10 -8 8 -10 6 -10 L-6 -10 C-8 -10 -10 -8 -10 -6 Z" 
+                                      fill="#0d9488"/>
+                                <rect x="-3" y="-6" width="6" height="14" rx="2" fill="#0d9488"/>
+                                <!-- Sound waves -->
+                                <path d="M12 -4 Q16 0 12 4" stroke="#14b8a6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                                <path d="M15 -6 Q20 0 15 6" stroke="#14b8a6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
                             </g>
                             <text x="150" y="485" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #0f766e;">AI Phone</text>
                             <text x="150" y="498" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Call</text>
@@ -1079,7 +1055,7 @@
                         const stepEl = document.getElementById('flow-step-' + step.id);
                         if (stepEl) {
                             stepEl.style.opacity = '1';
-                            stepEl.style.filter = 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.4))';
+                            stepEl.style.transform = 'scale(1.02)';
                         }
                         
                         // Animate arrow if present
@@ -1116,7 +1092,7 @@
                                 // Reset all steps
                                 for (let i = 1; i <= 4; i++) {
                                     const el = document.getElementById('flow-step-' + i);
-                                    if (el) { el.style.opacity = '0.4'; el.style.filter = 'none'; }
+                                    if (el) { el.style.opacity = '0.4'; el.style.transform = 'scale(1)'; }
                                 }
                                 for (let i = 1; i <= 3; i++) {
                                     const arrowEl = document.getElementById('flow-arrow-' + i);
