@@ -373,14 +373,14 @@
                         <line id="active-line" x1="0" y1="0" x2="0" y2="0" stroke="url(#activeLineGradient)" stroke-width="3" stroke-linecap="round" opacity="0"/>
                         
                         <!-- ========== CENTRAL MAGICFLOW BRAIN ========== -->
-                        <g id="brain-node" class="brain-container" transform="translate(350, 280)">
+                        <g id="brain-node" class="brain-container">
                             <!-- Outer pulse ring -->
-                            <circle id="brain-pulse-ring" r="75" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.3"/>
+                            <circle id="brain-pulse-ring" cx="350" cy="280" r="75" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.3"/>
                             <!-- Main circle -->
-                            <circle r="60" fill="white" stroke="#8b5cf6" stroke-width="4"/>
-                            <circle r="48" fill="#f5f3ff"/>
-                            <!-- Brain illustration -->
-                            <g transform="translate(-25, -30)">
+                            <circle cx="350" cy="280" r="60" fill="white" stroke="#8b5cf6" stroke-width="4"/>
+                            <circle cx="350" cy="280" r="48" fill="#f5f3ff"/>
+                            <!-- Brain illustration centered at (350, 280) -->
+                            <g transform="translate(325, 250)">
                                 <path d="M25 10 
                                          c-6-10-20-12-28-4 c-6 6-6 16 0 22 
                                          c-10-2-18 6-18 16 c0 8 6 14 14 16
@@ -395,8 +395,8 @@
                                 <path d="M17 46 q4 4 16 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
                             </g>
                             <!-- Label -->
-                            <text y="75" text-anchor="middle" style="font-size: 12px; font-weight: 700; fill: #6d28d9;">MagicFlow</text>
-                            <text y="88" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Orchestration Brain</text>
+                            <text x="350" y="355" text-anchor="middle" style="font-size: 12px; font-weight: 700; fill: #6d28d9;">MagicFlow</text>
+                            <text x="350" y="368" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Orchestration Brain</text>
                         </g>
                         
                         <!-- ========== WORKFLOW NODES ========== -->
