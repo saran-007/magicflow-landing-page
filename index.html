@@ -468,9 +468,38 @@
                         <g id="node-phone" class="workflow-node" data-node="phone">
                             <circle cx="150" cy="430" r="42" fill="white" stroke="#14b8a6" stroke-width="2"/>
                             <circle cx="150" cy="430" r="32" fill="#ccfbf1"/>
-                            <!-- Phone icon -->
-                            <path d="M138 415 c0 0 3 8 12 17 s17 12 17 12 l5-5 c2-2 2-5 0-7 l-6-6 c-2-2-5-2-7 0 l-2 2 c-4-3-8-7-11-11 l2-2 c2-2 2-5 0-7 l-6-6 c-2-2-5-2-7 0 l-5 5 z" 
-                                  fill="#0d9488"/>
+                            <!-- Phone icon - clean handset design -->
+                            <g transform="translate(150, 430)">
+                                <!-- Phone receiver -->
+                                <path d="M-12 -8 
+                                         C-14 -8 -15 -6 -15 -4 
+                                         L-15 0 
+                                         C-15 2 -13 4 -11 4 
+                                         L-9 4 
+                                         C-7 4 -6 3 -5 1 
+                                         L-3 -4 
+                                         C-2 -6 -1 -7 1 -7 
+                                         L3 -7 
+                                         C5 -7 6 -6 7 -4 
+                                         L9 1 
+                                         C10 3 11 4 13 4 
+                                         L15 4 
+                                         C17 4 19 2 19 0 
+                                         L19 -4 
+                                         C19 -6 18 -8 16 -8 
+                                         L12 -8 
+                                         C10 -8 8 -6 7 -3 
+                                         L5 2 
+                                         C4 4 3 5 1 5 
+                                         L-1 5 
+                                         C-3 5 -4 4 -5 2 
+                                         L-7 -3 
+                                         C-8 -6 -10 -8 -12 -8 Z" 
+                                      fill="#0d9488" stroke="#0f766e" stroke-width="0.5"/>
+                                <!-- Phone wave signals -->
+                                <path d="M5 -12 Q8 -14 5 -16" stroke="#14b8a6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                                <path d="M8 -10 Q13 -14 8 -18" stroke="#14b8a6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            </g>
                             <text x="150" y="485" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #0f766e;">AI Phone</text>
                             <text x="150" y="498" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Call</text>
                         </g>
@@ -952,44 +981,205 @@
                 </div>
             </div>
             
-            <!-- Workflow Diagram -->
-            <!-- DESIGNER NOTE: Replace with more detailed animated workflow visualization -->
+            <!-- Workflow Diagram - Animated -->
             <div class="mt-16 p-8 bg-gray-50 rounded-2xl border border-gray-100">
-                <svg viewBox="0 0 800 150" class="w-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Event -->
-                    <rect x="20" y="45" width="140" height="60" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-                    <text x="90" y="80" text-anchor="middle" class="fill-primary-700 text-sm font-medium">Event Received</text>
-                    
-                    <!-- Arrow 1 -->
-                    <path d="M170 75 L220 75" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Routing -->
-                    <rect x="230" y="45" width="140" height="60" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-                    <text x="300" y="80" text-anchor="middle" class="fill-primary-700 text-sm font-medium">Smart Routing</text>
-                    
-                    <!-- Arrow 2 -->
-                    <path d="M380 75 L430 75" stroke="#8b5cf6" stroke-width="2"/>
-                    
-                    <!-- Orchestration (larger box) -->
-                    <rect x="440" y="25" width="160" height="100" rx="8" fill="#ccfbf1" stroke="#14b8a6" stroke-width="2"/>
-                    <text x="520" y="55" text-anchor="middle" class="fill-teal-700 text-sm font-medium">Agent Orchestration</text>
-                    <text x="520" y="75" text-anchor="middle" class="fill-gray-500 text-xs">AI + Human</text>
-                    <text x="520" y="95" text-anchor="middle" class="fill-gray-500 text-xs">Working in Parallel</text>
-                    
-                    <!-- Arrow 3 -->
-                    <path d="M610 75 L660 75" stroke="#14b8a6" stroke-width="2"/>
-                    
-                    <!-- Complete -->
-                    <rect x="670" y="45" width="110" height="60" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
-                    <text x="725" y="80" text-anchor="middle" class="fill-green-700 text-sm font-medium">Complete ✓</text>
-                    
-                    <!-- Arrowhead marker -->
+                <svg id="flow-diagram" viewBox="0 0 800 150" class="w-full" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
+                        <!-- Arrowhead marker -->
                         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                             <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6"/>
                         </marker>
+                        <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/>
+                        </marker>
+                        <!-- Glow filter -->
+                        <filter id="flowGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="3" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
                     </defs>
+                    
+                    <!-- Step 1: Event Received -->
+                    <g id="flow-step-1" class="flow-step" style="opacity: 0.4;">
+                        <rect x="20" y="45" width="140" height="60" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2" class="flow-box"/>
+                        <text x="90" y="80" text-anchor="middle" style="font-size: 13px; font-weight: 500; fill: #6d28d9;">Event Received</text>
+                    </g>
+                    
+                    <!-- Arrow 1 -->
+                    <g id="flow-arrow-1" style="opacity: 0;">
+                        <line x1="160" y1="75" x2="160" y2="75" stroke="#7c3aed" stroke-width="2" class="flow-line" id="flow-line-1"/>
+                        <circle r="5" fill="#8b5cf6" class="flow-dot" id="flow-dot-1">
+                            <animate attributeName="cx" from="160" to="230" dur="0.8s" fill="freeze"/>
+                            <animate attributeName="cy" values="75" dur="0.8s" fill="freeze"/>
+                        </circle>
+                    </g>
+                    
+                    <!-- Step 2: Smart Routing -->
+                    <g id="flow-step-2" class="flow-step" style="opacity: 0.4;">
+                        <rect x="230" y="45" width="140" height="60" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2" class="flow-box"/>
+                        <text x="300" y="80" text-anchor="middle" style="font-size: 13px; font-weight: 500; fill: #6d28d9;">Smart Routing</text>
+                    </g>
+                    
+                    <!-- Arrow 2 -->
+                    <g id="flow-arrow-2" style="opacity: 0;">
+                        <line x1="370" y1="75" x2="370" y2="75" stroke="#7c3aed" stroke-width="2" class="flow-line" id="flow-line-2"/>
+                        <circle r="5" fill="#8b5cf6" class="flow-dot" id="flow-dot-2"/>
+                    </g>
+                    
+                    <!-- Step 3: Agent Orchestration -->
+                    <g id="flow-step-3" class="flow-step" style="opacity: 0.4;">
+                        <rect x="440" y="25" width="160" height="100" rx="8" fill="#ccfbf1" stroke="#14b8a6" stroke-width="2" class="flow-box"/>
+                        <text x="520" y="55" text-anchor="middle" style="font-size: 13px; font-weight: 600; fill: #0f766e;">Agent Orchestration</text>
+                        <text x="520" y="75" text-anchor="middle" style="font-size: 11px; fill: #6b7280;">AI + Human</text>
+                        <text x="520" y="92" text-anchor="middle" style="font-size: 11px; fill: #6b7280;">Working in Parallel</text>
+                    </g>
+                    
+                    <!-- Arrow 3 -->
+                    <g id="flow-arrow-3" style="opacity: 0;">
+                        <line x1="600" y1="75" x2="600" y2="75" stroke="#14b8a6" stroke-width="2" class="flow-line" id="flow-line-3"/>
+                        <circle r="5" fill="#14b8a6" class="flow-dot" id="flow-dot-3"/>
+                    </g>
+                    
+                    <!-- Step 4: Complete -->
+                    <g id="flow-step-4" class="flow-step" style="opacity: 0.4;">
+                        <rect x="670" y="45" width="110" height="60" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="2" class="flow-box"/>
+                        <text x="725" y="75" text-anchor="middle" style="font-size: 13px; font-weight: 600; fill: #15803d;">Complete</text>
+                        <text x="725" y="90" text-anchor="middle" style="font-size: 14px; fill: #22c55e;">✓</text>
+                    </g>
                 </svg>
+                
+                <!-- Flow step indicator -->
+                <div id="flow-indicator" class="mt-6 flex justify-center items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <div id="flow-status-dot" class="w-3 h-3 rounded-full bg-primary-500 animate-pulse"></div>
+                        <span id="flow-status-text" class="text-sm text-gray-600">Starting workflow...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                // Flow diagram animation
+                (function() {
+                    const flowSteps = [
+                        { id: 1, text: 'Event received from EHR...', duration: 1500 },
+                        { id: 2, text: 'Routing to appropriate workflow...', duration: 1500, arrow: 1, arrowEnd: 230 },
+                        { id: 3, text: 'Orchestrating AI agents...', duration: 2000, arrow: 2, arrowEnd: 440 },
+                        { id: 4, text: 'Workflow complete!', duration: 1500, arrow: 3, arrowEnd: 670 }
+                    ];
+                    
+                    let currentStep = 0;
+                    
+                    function animateFlow() {
+                        const step = flowSteps[currentStep];
+                        
+                        // Update status text
+                        document.getElementById('flow-status-text').textContent = step.text;
+                        
+                        // Highlight current step
+                        const stepEl = document.getElementById('flow-step-' + step.id);
+                        if (stepEl) {
+                            stepEl.style.opacity = '1';
+                            stepEl.style.filter = 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.4))';
+                        }
+                        
+                        // Animate arrow if present
+                        if (step.arrow) {
+                            const arrowEl = document.getElementById('flow-arrow-' + step.arrow);
+                            const lineEl = document.getElementById('flow-line-' + step.arrow);
+                            const dotEl = document.getElementById('flow-dot-' + step.arrow);
+                            
+                            if (arrowEl) arrowEl.style.opacity = '1';
+                            if (lineEl) {
+                                const startX = parseFloat(lineEl.getAttribute('x1'));
+                                lineEl.setAttribute('x2', step.arrowEnd);
+                            }
+                            if (dotEl) {
+                                const startX = step.arrow === 1 ? 160 : (step.arrow === 2 ? 370 : 600);
+                                dotEl.setAttribute('cx', startX);
+                                dotEl.setAttribute('cy', '75');
+                                // Animate dot
+                                dotEl.animate([
+                                    { cx: startX, cy: 75 },
+                                    { cx: step.arrowEnd, cy: 75 }
+                                ], { duration: 600, fill: 'forwards' });
+                            }
+                        }
+                        
+                        // Move to next step
+                        currentStep++;
+                        if (currentStep < flowSteps.length) {
+                            setTimeout(animateFlow, step.duration);
+                        } else {
+                            // Reset after delay
+                            setTimeout(() => {
+                                currentStep = 0;
+                                // Reset all steps
+                                for (let i = 1; i <= 4; i++) {
+                                    const el = document.getElementById('flow-step-' + i);
+                                    if (el) { el.style.opacity = '0.4'; el.style.filter = 'none'; }
+                                }
+                                for (let i = 1; i <= 3; i++) {
+                                    const arrowEl = document.getElementById('flow-arrow-' + i);
+                                    if (arrowEl) arrowEl.style.opacity = '0';
+                                }
+                                animateFlow();
+                            }, 3000);
+                        }
+                    }
+                    
+                    // Start animation when in view
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                animateFlow();
+                                observer.disconnect();
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    
+                    observer.observe(document.getElementById('flow-diagram'));
+                })();
+            </script>
+        </div>
+    </section>
+    
+    <!-- ============================================================
+         VALUE PROPOSITION: MagicFlow is FREE
+         ============================================================ -->
+    <section class="py-16 bg-gradient-to-r from-primary-600 to-primary-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-4 py-2 rounded-full mb-6">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-white font-medium">Included Free</span>
+                </div>
+                
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    MagicFlow Platform is <span class="text-yellow-300">FREE</span>
+                </h2>
+                <p class="text-xl text-primary-100 max-w-3xl mx-auto mb-8">
+                    When you deploy <strong class="text-white">two or more AI agents</strong> from Insight Health, the MagicFlow orchestration platform is included at no additional cost. It's completely <strong class="text-white">done for you</strong>.
+                </p>
+                
+                <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-10">
+                    <div class="bg-white/10 backdrop-blur rounded-xl p-6 text-left">
+                        <div class="text-3xl font-bold text-yellow-300 mb-2">$0</div>
+                        <div class="text-white font-medium mb-1">Platform Fee</div>
+                        <div class="text-primary-200 text-sm">MagicFlow orchestration included free with 2+ agents</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur rounded-xl p-6 text-left">
+                        <div class="text-3xl font-bold text-yellow-300 mb-2">Pay Per Use</div>
+                        <div class="text-white font-medium mb-1">Agent Usage Only</div>
+                        <div class="text-primary-200 text-sm">Only pay for the AI agents you actually use</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur rounded-xl p-6 text-left">
+                        <div class="text-3xl font-bold text-yellow-300 mb-2">Done For You</div>
+                        <div class="text-white font-medium mb-1">Full Setup & Support</div>
+                        <div class="text-primary-200 text-sm">We configure workflows for your practice</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
