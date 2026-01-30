@@ -43,22 +43,148 @@
         }
     </script>
     
+    <!-- Lottie Player for enhanced animations -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
     <style>
-        /* Custom animations for the hero diagram */
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        /* ========== WORKFLOW ANIMATION SYSTEM ========== */
+        /* Total animation cycle: 16 seconds (8 steps x 2 seconds each) */
+        
+        /* Base styles for workflow nodes */
+        .workflow-node {
+            opacity: 0.4;
+            transform: scale(0.95);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        @keyframes flow {
-            0% { stroke-dashoffset: 100; }
+        
+        .workflow-node.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .workflow-node .node-ring {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.8s ease-out;
+        }
+        
+        .workflow-node.active .node-ring {
+            stroke-dashoffset: 0;
+        }
+        
+        /* Data packet animation along paths */
+        @keyframes movePacket {
+            0% { offset-distance: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { offset-distance: 100%; opacity: 0; }
+        }
+        
+        .data-packet {
+            offset-rotate: 0deg;
+            animation: movePacket 1.5s ease-in-out forwards;
+        }
+        
+        /* Brain pulse animation */
+        @keyframes brainPulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
+                transform: scale(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.6));
+                transform: scale(1.02);
+            }
+        }
+        
+        .brain-container {
+            animation: brainPulse 2s ease-in-out infinite;
+        }
+        
+        .brain-container.processing {
+            animation: brainPulse 0.5s ease-in-out infinite;
+        }
+        
+        /* Step indicator styles */
+        .step-indicator {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+        }
+        
+        .step-indicator.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Connection line animation */
+        @keyframes drawLine {
+            0% { stroke-dashoffset: 200; }
             100% { stroke-dashoffset: 0; }
         }
-        .animate-pulse-slow {
-            animation: pulse-slow 3s ease-in-out infinite;
+        
+        .connection-line {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
         }
-        .animate-flow {
-            stroke-dasharray: 10 5;
-            animation: flow 2s linear infinite;
+        
+        .connection-line.active {
+            animation: drawLine 0.8s ease-out forwards;
+        }
+        
+        /* Glow effect for active elements */
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 8px currentColor); }
+            50% { filter: drop-shadow(0 0 20px currentColor); }
+        }
+        
+        .glow-active {
+            animation: glowPulse 1s ease-in-out infinite;
+        }
+        
+        /* Status badge animations */
+        @keyframes statusPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .status-badge {
+            animation: statusPop 0.4s ease-out forwards;
+        }
+        
+        /* Particle trail effect */
+        @keyframes particleFloat {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: particleFloat 1s ease-out forwards;
+        }
+        
+        /* Smooth fade for step text */
+        .step-text {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .step-text.visible {
+            opacity: 1;
+        }
+        
+        /* Progress bar animation */
+        @keyframes progressFill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        .progress-fill {
+            animation: progressFill 2s ease-out forwards;
         }
     </style>
 </head>
@@ -144,195 +270,520 @@
                     </div>
                 </div>
                 
-                <!-- Hero Illustration - Agent Orchestration Diagram -->
-                <!-- DESIGNER NOTE: This is a conceptual SVG showing MagicFlow as the central brain
-                     connecting various healthcare workflow nodes. Consider:
-                     - More detailed illustrations for each workflow type
-                     - Animated data flow lines with direction indicators
-                     - Subtle glow effects and pulsing animations
-                     - Brain icon inside the central node -->
-                <div class="relative">
-                    <svg viewBox="0 0 600 500" class="w-full max-w-2xl mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Definitions for gradients and effects -->
+                <!-- Hero Illustration - Animated Workflow Orchestration -->
+                <!-- DESIGNER NOTE: This is an interactive step-by-step animation showing
+                     a real healthcare workflow with MagicFlow orchestrating each step.
+                     The animation loops through: Referral → Processing → Intake Call → 
+                     Provider Review → Scheduling → Complete -->
+                <div class="relative" id="workflow-animation">
+                    <!-- Step Indicator Banner -->
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                        <div id="step-banner" class="bg-white px-4 py-2 rounded-full shadow-lg border border-gray-100 flex items-center gap-3 min-w-[280px]">
+                            <div id="step-icon" class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                                <span class="text-primary-600 text-sm font-bold" id="step-number">1</span>
+                            </div>
+                            <div>
+                                <div id="step-title" class="text-sm font-semibold text-gray-900">Referral Received</div>
+                                <div id="step-subtitle" class="text-xs text-gray-500">Incoming from Primary Care</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Main SVG Animation Canvas -->
+                    <svg viewBox="0 0 600 520" class="w-full max-w-2xl mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <!-- Center brain glow -->
+                            <!-- Gradients -->
                             <radialGradient id="brainGlow" cx="50%" cy="50%" r="50%">
-                                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.4"/>
-                                <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.15"/>
+                                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.5"/>
+                                <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.2"/>
                                 <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
                             </radialGradient>
-                            <!-- Line gradients for different node types -->
-                            <linearGradient id="agentLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <linearGradient id="activeLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" stop-color="#8b5cf6"/>
-                                <stop offset="100%" stop-color="#14b8a6"/>
+                                <stop offset="50%" stop-color="#14b8a6"/>
+                                <stop offset="100%" stop-color="#22c55e"/>
                             </linearGradient>
-                            <linearGradient id="workflowLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#8b5cf6"/>
-                                <stop offset="100%" stop-color="#6366f1"/>
-                            </linearGradient>
-                            <linearGradient id="providerLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#8b5cf6"/>
-                                <stop offset="100%" stop-color="#ec4899"/>
-                            </linearGradient>
-                            <!-- Filter for subtle shadow -->
-                            <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+                            <!-- Glow filters -->
+                            <filter id="activeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="4" result="blur"/>
+                                <feMerge>
+                                    <feMergeNode in="blur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
                             </filter>
+                            <filter id="strongGlow" x="-100%" y="-100%" width="300%" height="300%">
+                                <feGaussianBlur stdDeviation="8" result="blur"/>
+                                <feMerge>
+                                    <feMergeNode in="blur"/>
+                                    <feMergeNode in="blur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <!-- Data packet symbol -->
+                            <symbol id="dataPacket" viewBox="0 0 20 20">
+                                <circle cx="10" cy="10" r="8" fill="#8b5cf6"/>
+                                <circle cx="10" cy="10" r="5" fill="#c4b5fd"/>
+                                <circle cx="10" cy="10" r="2" fill="white"/>
+                            </symbol>
+                            <!-- Checkmark symbol -->
+                            <symbol id="checkmark" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" fill="#22c55e"/>
+                                <path d="M8 12l3 3 5-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            </symbol>
                         </defs>
                         
-                        <!-- Outer glow ring -->
-                        <circle cx="300" cy="250" r="200" fill="none" stroke="#e9d5ff" stroke-width="1" stroke-dasharray="8 4" opacity="0.5"/>
-                        <circle cx="300" cy="250" r="160" fill="none" stroke="#c4b5fd" stroke-width="1" stroke-dasharray="4 4" opacity="0.3"/>
+                        <!-- Background orbit rings -->
+                        <circle cx="300" cy="270" r="180" fill="none" stroke="#e9d5ff" stroke-width="1" stroke-dasharray="4 6" opacity="0.4"/>
+                        <circle cx="300" cy="270" r="140" fill="none" stroke="#c4b5fd" stroke-width="1" opacity="0.3"/>
                         
-                        <!-- Center brain glow -->
-                        <circle cx="300" cy="250" r="140" fill="url(#brainGlow)" class="animate-pulse-slow"/>
+                        <!-- Center glow (animates with brain activity) -->
+                        <circle id="brain-glow" cx="300" cy="270" r="100" fill="url(#brainGlow)"/>
                         
-                        <!-- ========== CONNECTION LINES ========== -->
-                        <!-- AI Agent connections (teal) -->
-                        <path d="M300 250 L120 100" stroke="url(#agentLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
-                        <path d="M300 250 L300 70" stroke="url(#agentLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
-                        <path d="M300 250 L480 100" stroke="url(#agentLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
+                        <!-- ========== CONNECTION PATHS (for data packets) ========== -->
+                        <!-- Path: Referrals → Brain -->
+                        <path id="path-referral-brain" d="M140 120 Q220 195 260 250" stroke="none" fill="none"/>
+                        <!-- Path: Brain → Intake -->
+                        <path id="path-brain-intake" d="M340 250 Q380 195 460 120" stroke="none" fill="none"/>
+                        <!-- Path: Intake → Brain -->
+                        <path id="path-intake-brain" d="M460 120 Q380 195 340 250" stroke="none" fill="none"/>
+                        <!-- Path: Brain → Phone -->
+                        <path id="path-brain-phone" d="M260 290 Q180 340 120 400" stroke="none" fill="none"/>
+                        <!-- Path: Phone → Brain -->
+                        <path id="path-phone-brain" d="M120 400 Q180 340 260 290" stroke="none" fill="none"/>
+                        <!-- Path: Brain → Provider -->
+                        <path id="path-brain-provider" d="M300 210 L300 100" stroke="none" fill="none"/>
+                        <!-- Path: Provider → Brain -->
+                        <path id="path-provider-brain" d="M300 100 L300 210" stroke="none" fill="none"/>
+                        <!-- Path: Brain → Scheduling -->
+                        <path id="path-brain-scheduling" d="M340 290 Q400 360 480 420" stroke="none" fill="none"/>
+                        <!-- Path: Brain → EHR -->
+                        <path id="path-brain-ehr" d="M300 330 L300 440" stroke="none" fill="none"/>
                         
-                        <!-- Workflow connections (indigo) -->
-                        <path d="M300 250 L80 250" stroke="url(#workflowLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
-                        <path d="M300 250 L520 250" stroke="url(#workflowLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
-                        <path d="M300 250 L120 400" stroke="url(#workflowLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
-                        <path d="M300 250 L480 400" stroke="url(#workflowLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
+                        <!-- ========== VISIBLE CONNECTION LINES ========== -->
+                        <g id="connection-lines" opacity="0.3">
+                            <line x1="140" y1="120" x2="260" y2="250" stroke="#c4b5fd" stroke-width="2"/>
+                            <line x1="340" y1="250" x2="460" y2="120" stroke="#c4b5fd" stroke-width="2"/>
+                            <line x1="260" y1="290" x2="120" y2="400" stroke="#c4b5fd" stroke-width="2"/>
+                            <line x1="300" y1="210" x2="300" y2="100" stroke="#c4b5fd" stroke-width="2"/>
+                            <line x1="340" y1="290" x2="480" y2="420" stroke="#c4b5fd" stroke-width="2"/>
+                            <line x1="300" y1="330" x2="300" y2="440" stroke="#c4b5fd" stroke-width="2"/>
+                        </g>
                         
-                        <!-- Provider connections (pink) -->
-                        <path d="M300 250 L180 180" stroke="url(#providerLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
-                        <path d="M300 250 L420 180" stroke="url(#providerLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
-                        <path d="M300 250 L300 430" stroke="url(#providerLine)" stroke-width="2" class="animate-flow" opacity="0.8"/>
+                        <!-- Active connection line (animated) -->
+                        <line id="active-line" x1="0" y1="0" x2="0" y2="0" stroke="url(#activeLineGradient)" stroke-width="3" stroke-linecap="round" opacity="0"/>
                         
                         <!-- ========== CENTRAL MAGICFLOW BRAIN ========== -->
-                        <g filter="url(#nodeShadow)">
-                            <!-- Outer ring -->
-                            <circle cx="300" cy="250" r="70" fill="white" stroke="#8b5cf6" stroke-width="4"/>
-                            <!-- Inner fill -->
-                            <circle cx="300" cy="250" r="55" fill="#f5f3ff"/>
-                            <!-- Brain icon -->
-                            <path d="M300 220 
-                                     c-8-12-25-15-35-5 c-8 8-8 20 0 28 
-                                     c-12-2-22 8-22 20 c0 10 8 18 18 20
-                                     c-2 8 5 18 15 18 c8 0 14-5 16-12
-                                     c2 7 8 12 16 12 c10 0 17-10 15-18
-                                     c10-2 18-10 18-20 c0-12-10-22-22-20
-                                     c8-8 8-20 0-28 c-10-10-27-7-35 5z" 
-                                  fill="#c4b5fd" stroke="#8b5cf6" stroke-width="1.5"/>
-                            <!-- Brain details -->
-                            <path d="M290 235 q5 8 20 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
-                            <path d="M285 250 q8 5 30 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
-                            <path d="M290 265 q5 5 20 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                        <g id="brain-node" class="brain-container" transform="translate(300, 270)">
+                            <!-- Outer pulse ring -->
+                            <circle id="brain-pulse-ring" r="75" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.3"/>
+                            <!-- Main circle -->
+                            <circle r="60" fill="white" stroke="#8b5cf6" stroke-width="4"/>
+                            <circle r="48" fill="#f5f3ff"/>
+                            <!-- Brain illustration -->
+                            <g transform="translate(-25, -30)">
+                                <path d="M25 10 
+                                         c-6-10-20-12-28-4 c-6 6-6 16 0 22 
+                                         c-10-2-18 6-18 16 c0 8 6 14 14 16
+                                         c-2 6 4 14 12 14 c6 0 11-4 13-10
+                                         c2 6 6 10 13 10 c8 0 14-8 12-14
+                                         c8-2 14-8 14-16 c0-10-8-18-18-16
+                                         c6-6 6-16 0-22 c-8-8-22-6-28 4z" 
+                                      fill="#c4b5fd" stroke="#8b5cf6" stroke-width="1.5"/>
+                                <!-- Neural connections -->
+                                <path d="M17 22 q4 6 16 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                                <path d="M14 34 q6 4 22 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                                <path d="M17 46 q4 4 16 0" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                            </g>
                             <!-- Label -->
-                            <text x="300" y="310" text-anchor="middle" class="fill-primary-700" style="font-size: 11px; font-weight: 700;">MagicFlow</text>
-                            <text x="300" y="324" text-anchor="middle" class="fill-gray-500" style="font-size: 9px;">Orchestration Brain</text>
+                            <text y="75" text-anchor="middle" style="font-size: 12px; font-weight: 700; fill: #6d28d9;">MagicFlow</text>
+                            <text y="88" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Orchestration Brain</text>
                         </g>
                         
-                        <!-- ========== AI AGENT NODES (Teal) ========== -->
-                        <!-- Phone Conversations -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="120" cy="100" r="38" fill="white" stroke="#14b8a6" stroke-width="2"/>
-                            <circle cx="120" cy="100" r="28" fill="#ccfbf1"/>
-                            <path d="M110 90 l4 4 l8-8 M112 100 h16 M112 106 h12" stroke="#0d9488" stroke-width="2" stroke-linecap="round"/>
-                            <text x="120" y="148" text-anchor="middle" class="fill-teal-700" style="font-size: 10px; font-weight: 600;">Phone</text>
-                            <text x="120" y="160" text-anchor="middle" class="fill-gray-500" style="font-size: 8px;">Conversations</text>
+                        <!-- ========== WORKFLOW NODES ========== -->
+                        <!-- Node 1: Referrals (Pink) - Top Left -->
+                        <g id="node-referral" class="workflow-node" data-node="referral">
+                            <circle cx="140" cy="120" r="42" fill="white" stroke="#ec4899" stroke-width="2"/>
+                            <circle cx="140" cy="120" r="32" fill="#fce7f3"/>
+                            <!-- Document with arrow icon -->
+                            <rect x="125" y="108" width="20" height="24" rx="2" stroke="#db2777" stroke-width="2" fill="none"/>
+                            <path d="M130 114 h10 M130 120 h10 M130 126 h6" stroke="#db2777" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M148 110 l8 8 l-8 8" stroke="#db2777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <text x="140" y="175" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #be185d;">Referral</text>
+                            <text x="140" y="188" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Received</text>
                         </g>
                         
-                        <!-- Inbox/Messages -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="300" cy="70" r="38" fill="white" stroke="#14b8a6" stroke-width="2"/>
-                            <circle cx="300" cy="70" r="28" fill="#ccfbf1"/>
-                            <rect x="285" y="58" width="30" height="22" rx="2" stroke="#0d9488" stroke-width="2" fill="none"/>
-                            <path d="M285 60 l15 10 l15-10" stroke="#0d9488" stroke-width="2" fill="none"/>
-                            <text x="300" y="118" text-anchor="middle" class="fill-teal-700" style="font-size: 10px; font-weight: 600;">Inbox</text>
-                            <text x="300" y="130" text-anchor="middle" class="fill-gray-500" style="font-size: 8px;">Messages</text>
+                        <!-- Node 2: Patient Intake (Teal) - Top Right -->
+                        <g id="node-intake" class="workflow-node" data-node="intake">
+                            <circle cx="460" cy="120" r="42" fill="white" stroke="#14b8a6" stroke-width="2"/>
+                            <circle cx="460" cy="120" r="32" fill="#ccfbf1"/>
+                            <!-- Clipboard icon -->
+                            <rect x="447" y="105" width="26" height="30" rx="2" stroke="#0d9488" stroke-width="2" fill="none"/>
+                            <path d="M455 105 v-4 h10 v4" stroke="#0d9488" stroke-width="2" fill="none"/>
+                            <path d="M452 115 h16 M452 122 h16 M452 129 h10" stroke="#0d9488" stroke-width="1.5" stroke-linecap="round"/>
+                            <text x="460" y="175" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #0f766e;">Patient</text>
+                            <text x="460" y="188" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Intake</text>
                         </g>
                         
-                        <!-- Fax Agent -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="480" cy="100" r="38" fill="white" stroke="#14b8a6" stroke-width="2"/>
-                            <circle cx="480" cy="100" r="28" fill="#ccfbf1"/>
-                            <rect x="467" y="86" width="26" height="28" rx="2" stroke="#0d9488" stroke-width="2" fill="none"/>
-                            <path d="M472 92 h16 M472 98 h16 M472 104 h10" stroke="#0d9488" stroke-width="1.5" stroke-linecap="round"/>
-                            <text x="480" y="148" text-anchor="middle" class="fill-teal-700" style="font-size: 10px; font-weight: 600;">Fax</text>
-                            <text x="480" y="160" text-anchor="middle" class="fill-gray-500" style="font-size: 8px;">Documents</text>
+                        <!-- Node 3: Phone Call (Teal) - Bottom Left -->
+                        <g id="node-phone" class="workflow-node" data-node="phone">
+                            <circle cx="120" cy="400" r="42" fill="white" stroke="#14b8a6" stroke-width="2"/>
+                            <circle cx="120" cy="400" r="32" fill="#ccfbf1"/>
+                            <!-- Phone icon -->
+                            <path d="M108 385 c0 0 3 8 12 17 s17 12 17 12 l5-5 c2-2 2-5 0-7 l-6-6 c-2-2-5-2-7 0 l-2 2 c-4-3-8-7-11-11 l2-2 c2-2 2-5 0-7 l-6-6 c-2-2-5-2-7 0 l-5 5 z" 
+                                  fill="#0d9488"/>
+                            <text x="120" y="455" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #0f766e;">AI Phone</text>
+                            <text x="120" y="468" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Call</text>
                         </g>
                         
-                        <!-- ========== WORKFLOW NODES (Indigo) ========== -->
-                        <!-- Intakes -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="80" cy="250" r="35" fill="white" stroke="#6366f1" stroke-width="2"/>
-                            <circle cx="80" cy="250" r="26" fill="#e0e7ff"/>
-                            <path d="M70 245 h20 M70 252 h20 M70 259 h14" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
-                            <circle cx="90" cy="240" r="4" fill="#4f46e5"/>
-                            <text x="80" y="295" text-anchor="middle" class="fill-indigo-700" style="font-size: 10px; font-weight: 600;">Intakes</text>
+                        <!-- Node 4: Provider Review (Indigo) - Top Center -->
+                        <g id="node-provider" class="workflow-node" data-node="provider">
+                            <circle cx="300" cy="100" r="42" fill="white" stroke="#6366f1" stroke-width="2"/>
+                            <circle cx="300" cy="100" r="32" fill="#e0e7ff"/>
+                            <!-- Person with checkmark icon -->
+                            <circle cx="300" cy="88" r="8" stroke="#4f46e5" stroke-width="2" fill="none"/>
+                            <path d="M285 115 q15-10 30 0" stroke="#4f46e5" stroke-width="2" fill="none"/>
+                            <path d="M308 95 l4 4 l8-8" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <text x="300" y="155" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #4338ca;">Provider</text>
+                            <text x="300" y="168" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Review</text>
                         </g>
                         
-                        <!-- Prior Auth -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="520" cy="250" r="35" fill="white" stroke="#6366f1" stroke-width="2"/>
-                            <circle cx="520" cy="250" r="26" fill="#e0e7ff"/>
-                            <path d="M510 242 l5 5 l10-10" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="507" y="252" width="26" height="10" rx="2" stroke="#4f46e5" stroke-width="1.5" fill="none"/>
-                            <text x="520" y="295" text-anchor="middle" class="fill-indigo-700" style="font-size: 10px; font-weight: 600;">Prior Auth</text>
+                        <!-- Node 5: Scheduling (Indigo) - Bottom Right -->
+                        <g id="node-scheduling" class="workflow-node" data-node="scheduling">
+                            <circle cx="480" cy="420" r="42" fill="white" stroke="#6366f1" stroke-width="2"/>
+                            <circle cx="480" cy="420" r="32" fill="#e0e7ff"/>
+                            <!-- Calendar icon -->
+                            <rect x="462" y="405" width="36" height="30" rx="3" stroke="#4f46e5" stroke-width="2" fill="none"/>
+                            <path d="M462 415 h36" stroke="#4f46e5" stroke-width="2"/>
+                            <path d="M470 402 v8 M490 402 v8" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="480" cy="425" r="6" fill="#22c55e"/>
+                            <text x="480" y="475" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #4338ca;">Specialist</text>
+                            <text x="480" y="488" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Scheduled</text>
                         </g>
                         
-                        <!-- Follow-ups -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="120" cy="400" r="35" fill="white" stroke="#6366f1" stroke-width="2"/>
-                            <circle cx="120" cy="400" r="26" fill="#e0e7ff"/>
-                            <circle cx="120" cy="397" r="10" stroke="#4f46e5" stroke-width="2" fill="none"/>
-                            <path d="M120 387 v-4 M130 397 h4" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M115 410 l10 0" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
-                            <text x="120" y="445" text-anchor="middle" class="fill-indigo-700" style="font-size: 10px; font-weight: 600;">Follow-ups</text>
+                        <!-- Node 6: EHR Update (Pink) - Bottom Center -->
+                        <g id="node-ehr" class="workflow-node" data-node="ehr">
+                            <circle cx="300" cy="450" r="38" fill="white" stroke="#ec4899" stroke-width="2"/>
+                            <circle cx="300" cy="450" r="28" fill="#fce7f3"/>
+                            <!-- Database icon -->
+                            <ellipse cx="300" cy="438" rx="14" ry="6" stroke="#db2777" stroke-width="2" fill="none"/>
+                            <path d="M286 438 v18 c0 3 6 6 14 6 s14-3 14-6 v-18" stroke="#db2777" stroke-width="2" fill="none"/>
+                            <path d="M286 448 c0 3 6 6 14 6 s14-3 14-6" stroke="#db2777" stroke-width="1.5" fill="none"/>
+                            <text x="300" y="500" text-anchor="middle" style="font-size: 11px; font-weight: 600; fill: #be185d;">EHR</text>
+                            <text x="300" y="513" text-anchor="middle" style="font-size: 9px; fill: #9ca3af;">Updated</text>
                         </g>
                         
-                        <!-- Scheduling -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="480" cy="400" r="35" fill="white" stroke="#6366f1" stroke-width="2"/>
-                            <circle cx="480" cy="400" r="26" fill="#e0e7ff"/>
-                            <rect x="466" y="388" width="28" height="24" rx="2" stroke="#4f46e5" stroke-width="2" fill="none"/>
-                            <path d="M466 396 h28" stroke="#4f46e5" stroke-width="2"/>
-                            <path d="M472 385 v6 M488 385 v6" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
-                            <text x="480" y="445" text-anchor="middle" class="fill-indigo-700" style="font-size: 10px; font-weight: 600;">Scheduling</text>
+                        <!-- ========== DATA PACKETS (Animated) ========== -->
+                        <g id="data-packets">
+                            <!-- Packets are dynamically created by JavaScript -->
                         </g>
                         
-                        <!-- ========== PROVIDER NODES (Pink/Rose) ========== -->
-                        <!-- Referrals -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="180" cy="180" r="32" fill="white" stroke="#ec4899" stroke-width="2"/>
-                            <circle cx="180" cy="180" r="24" fill="#fce7f3"/>
-                            <path d="M170 175 h20 M170 182 h20 M170 189 h14" stroke="#db2777" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M190 170 l6 6 l-6 6" stroke="#db2777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <text x="180" y="222" text-anchor="middle" class="fill-pink-700" style="font-size: 10px; font-weight: 600;">Referrals</text>
+                        <!-- ========== STATUS BADGES ========== -->
+                        <g id="status-badges">
+                            <!-- Badges appear on nodes when complete -->
                         </g>
-                        
-                        <!-- In-Visit -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="420" cy="180" r="32" fill="white" stroke="#ec4899" stroke-width="2"/>
-                            <circle cx="420" cy="180" r="24" fill="#fce7f3"/>
-                            <circle cx="420" cy="172" r="6" stroke="#db2777" stroke-width="2" fill="none"/>
-                            <path d="M410 192 q10-8 20 0" stroke="#db2777" stroke-width="2" fill="none"/>
-                            <text x="420" y="222" text-anchor="middle" class="fill-pink-700" style="font-size: 10px; font-weight: 600;">In-Visit</text>
-                        </g>
-                        
-                        <!-- EHR Integration -->
-                        <g filter="url(#nodeShadow)">
-                            <circle cx="300" cy="430" r="35" fill="white" stroke="#ec4899" stroke-width="2"/>
-                            <circle cx="300" cy="430" r="26" fill="#fce7f3"/>
-                            <rect x="287" y="418" width="26" height="24" rx="3" stroke="#db2777" stroke-width="2" fill="none"/>
-                            <path d="M292 426 h16 M292 432 h16 M292 438 h10" stroke="#db2777" stroke-width="1.5" stroke-linecap="round"/>
-                            <text x="300" y="478" text-anchor="middle" class="fill-pink-700" style="font-size: 10px; font-weight: 600;">EHR</text>
-                            <text x="300" y="490" text-anchor="middle" class="fill-gray-500" style="font-size: 8px;">Integration</text>
-                        </g>
-                        
-                        <!-- ========== FLOATING LABELS ========== -->
-                        <!-- Category labels -->
-                        <text x="300" y="25" text-anchor="middle" class="fill-teal-600" style="font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">AI Agents</text>
-                        <text x="55" y="340" text-anchor="middle" class="fill-indigo-600" style="font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;" transform="rotate(-90 55 340)">Workflows</text>
-                        <text x="545" y="340" text-anchor="middle" class="fill-indigo-600" style="font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;" transform="rotate(90 545 340)">Workflows</text>
                     </svg>
+                    
+                    <!-- Progress Timeline -->
+                    <div class="mt-6 max-w-md mx-auto">
+                        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+                            <span>Workflow Progress</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-gradient-to-r from-primary-500 via-teal-500 to-green-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2">
+                            <div class="flex items-center gap-1">
+                                <div class="w-2 h-2 rounded-full bg-pink-400"></div>
+                                <span class="text-xs text-gray-500">Referral</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-2 h-2 rounded-full bg-teal-400"></div>
+                                <span class="text-xs text-gray-500">Intake</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
+                                <span class="text-xs text-gray-500">Review</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                                <span class="text-xs text-gray-500">Complete</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Workflow Animation Script -->
+                <script>
+                    (function() {
+                        // Workflow steps configuration
+                        const workflowSteps = [
+                            {
+                                id: 'referral-in',
+                                title: 'Referral Received',
+                                subtitle: 'Incoming from Primary Care',
+                                activeNode: 'referral',
+                                targetNode: null,
+                                progress: 0,
+                                duration: 2000
+                            },
+                            {
+                                id: 'process-referral',
+                                title: 'Processing Referral',
+                                subtitle: 'MagicFlow analyzing...',
+                                activeNode: null,
+                                targetNode: 'brain',
+                                fromNode: 'referral',
+                                progress: 15,
+                                duration: 1500
+                            },
+                            {
+                                id: 'trigger-intake',
+                                title: 'Triggering Patient Intake',
+                                subtitle: 'Gathering patient information',
+                                activeNode: 'intake',
+                                targetNode: 'intake',
+                                fromNode: 'brain',
+                                progress: 30,
+                                duration: 2000
+                            },
+                            {
+                                id: 'ai-call',
+                                title: 'AI Phone Call',
+                                subtitle: 'Lumi calling patient...',
+                                activeNode: 'phone',
+                                targetNode: 'phone',
+                                fromNode: 'brain',
+                                progress: 45,
+                                duration: 2500
+                            },
+                            {
+                                id: 'call-complete',
+                                title: 'Call Complete',
+                                subtitle: 'Information gathered',
+                                activeNode: null,
+                                targetNode: 'brain',
+                                fromNode: 'phone',
+                                progress: 55,
+                                duration: 1500
+                            },
+                            {
+                                id: 'provider-review',
+                                title: 'Provider Review',
+                                subtitle: 'Clinician reviewing summary',
+                                activeNode: 'provider',
+                                targetNode: 'provider',
+                                fromNode: 'brain',
+                                progress: 70,
+                                duration: 2000
+                            },
+                            {
+                                id: 'schedule-specialist',
+                                title: 'Scheduling Specialist',
+                                subtitle: 'Finding available slot...',
+                                activeNode: 'scheduling',
+                                targetNode: 'scheduling',
+                                fromNode: 'brain',
+                                progress: 85,
+                                duration: 2000
+                            },
+                            {
+                                id: 'update-ehr',
+                                title: 'Updating EHR',
+                                subtitle: 'Recording all activities',
+                                activeNode: 'ehr',
+                                targetNode: 'ehr',
+                                fromNode: 'brain',
+                                progress: 95,
+                                duration: 1500
+                            },
+                            {
+                                id: 'complete',
+                                title: 'Workflow Complete',
+                                subtitle: 'Patient scheduled with specialist',
+                                activeNode: null,
+                                targetNode: null,
+                                progress: 100,
+                                duration: 2000
+                            }
+                        ];
+                        
+                        let currentStep = 0;
+                        const completedNodes = new Set();
+                        
+                        // Node positions for line animations
+                        const nodePositions = {
+                            referral: { x: 140, y: 120 },
+                            intake: { x: 460, y: 120 },
+                            phone: { x: 120, y: 400 },
+                            provider: { x: 300, y: 100 },
+                            scheduling: { x: 480, y: 420 },
+                            ehr: { x: 300, y: 450 },
+                            brain: { x: 300, y: 270 }
+                        };
+                        
+                        function updateUI(step) {
+                            // Update step banner
+                            document.getElementById('step-number').textContent = currentStep + 1;
+                            document.getElementById('step-title').textContent = step.title;
+                            document.getElementById('step-subtitle').textContent = step.subtitle;
+                            
+                            // Update progress bar
+                            document.getElementById('progress-bar').style.width = step.progress + '%';
+                            document.getElementById('progress-percent').textContent = step.progress + '%';
+                            
+                            // Reset all nodes to inactive
+                            document.querySelectorAll('.workflow-node').forEach(node => {
+                                if (!completedNodes.has(node.dataset.node)) {
+                                    node.classList.remove('active');
+                                    node.style.filter = '';
+                                }
+                            });
+                            
+                            // Activate current node
+                            if (step.activeNode) {
+                                const node = document.getElementById('node-' + step.activeNode);
+                                if (node) {
+                                    node.classList.add('active');
+                                    node.style.filter = 'url(#activeGlow)';
+                                    
+                                    // Add to completed after this step
+                                    setTimeout(() => {
+                                        completedNodes.add(step.activeNode);
+                                        addCompleteBadge(step.activeNode);
+                                    }, step.duration - 500);
+                                }
+                            }
+                            
+                            // Animate brain
+                            const brain = document.getElementById('brain-node');
+                            if (step.targetNode === 'brain' || step.fromNode === 'brain') {
+                                brain.classList.add('processing');
+                            } else {
+                                brain.classList.remove('processing');
+                            }
+                            
+                            // Animate connection line
+                            if (step.fromNode && step.targetNode) {
+                                animateConnection(step.fromNode, step.targetNode);
+                            }
+                            
+                            // Create data packet
+                            if (step.fromNode) {
+                                createDataPacket(step.fromNode, step.targetNode || 'brain');
+                            }
+                        }
+                        
+                        function animateConnection(from, to) {
+                            const line = document.getElementById('active-line');
+                            const fromPos = nodePositions[from];
+                            const toPos = nodePositions[to];
+                            
+                            line.setAttribute('x1', fromPos.x);
+                            line.setAttribute('y1', fromPos.y);
+                            line.setAttribute('x2', fromPos.x);
+                            line.setAttribute('y2', fromPos.y);
+                            line.style.opacity = '1';
+                            
+                            // Animate to target
+                            setTimeout(() => {
+                                line.style.transition = 'all 0.8s ease-out';
+                                line.setAttribute('x2', toPos.x);
+                                line.setAttribute('y2', toPos.y);
+                            }, 50);
+                            
+                            // Fade out
+                            setTimeout(() => {
+                                line.style.opacity = '0';
+                            }, 1000);
+                        }
+                        
+                        function createDataPacket(from, to) {
+                            const packets = document.getElementById('data-packets');
+                            const fromPos = nodePositions[from];
+                            const toPos = nodePositions[to];
+                            
+                            const packet = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            packet.setAttribute('r', '8');
+                            packet.setAttribute('fill', '#8b5cf6');
+                            packet.setAttribute('cx', fromPos.x);
+                            packet.setAttribute('cy', fromPos.y);
+                            packet.style.filter = 'url(#activeGlow)';
+                            
+                            packets.appendChild(packet);
+                            
+                            // Animate packet
+                            const duration = 800;
+                            const startTime = Date.now();
+                            
+                            function animatePacket() {
+                                const elapsed = Date.now() - startTime;
+                                const progress = Math.min(elapsed / duration, 1);
+                                const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                                
+                                const x = fromPos.x + (toPos.x - fromPos.x) * eased;
+                                const y = fromPos.y + (toPos.y - fromPos.y) * eased;
+                                
+                                packet.setAttribute('cx', x);
+                                packet.setAttribute('cy', y);
+                                packet.setAttribute('r', 8 - progress * 3);
+                                packet.style.opacity = 1 - progress * 0.5;
+                                
+                                if (progress < 1) {
+                                    requestAnimationFrame(animatePacket);
+                                } else {
+                                    packets.removeChild(packet);
+                                }
+                            }
+                            
+                            requestAnimationFrame(animatePacket);
+                        }
+                        
+                        function addCompleteBadge(nodeId) {
+                            const badges = document.getElementById('status-badges');
+                            const pos = nodePositions[nodeId];
+                            
+                            // Check if badge already exists
+                            if (document.getElementById('badge-' + nodeId)) return;
+                            
+                            const badge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                            badge.id = 'badge-' + nodeId;
+                            badge.innerHTML = `
+                                <circle cx="${pos.x + 30}" cy="${pos.y - 30}" r="12" fill="#22c55e" class="status-badge"/>
+                                <path d="M${pos.x + 24} ${pos.y - 30} l4 4 l8-8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            `;
+                            badges.appendChild(badge);
+                        }
+                        
+                        function runWorkflow() {
+                            const step = workflowSteps[currentStep];
+                            updateUI(step);
+                            
+                            setTimeout(() => {
+                                currentStep++;
+                                if (currentStep >= workflowSteps.length) {
+                                    // Reset and restart
+                                    setTimeout(() => {
+                                        currentStep = 0;
+                                        completedNodes.clear();
+                                        document.getElementById('status-badges').innerHTML = '';
+                                        document.getElementById('progress-bar').style.width = '0%';
+                                        runWorkflow();
+                                    }, 2000);
+                                } else {
+                                    runWorkflow();
+                                }
+                            }, step.duration);
+                        }
+                        
+                        // Start animation when page loads
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', () => setTimeout(runWorkflow, 1000));
+                        } else {
+                            setTimeout(runWorkflow, 1000);
+                        }
+                    })();
+                </script>
             </div>
         </div>
         
